@@ -6,7 +6,7 @@ require 'pp'
 #
 if node[:instance_role] == 'db_master'
   postgres_root    = '/var/lib/postgresql'
-  postgres_version = '8.3'
+  postgres_version = '8.4'
 
   directory '/db/postgresql' do
     owner 'postgres'
@@ -33,14 +33,14 @@ if node[:instance_role] == 'db_master'
     only_if "[ ! -d #{postgres_root}/#{postgres_version}/data ]"
   end
 
-  remote_file "/var/lib/postgresql/8.3/data/postgresql.conf" do
+  remote_file "/var/lib/postgresql/8.4/data/postgresql.conf" do
     source "postgresql.conf"
     owner "postgres"
     group "root"
     mode 0600
   end
 
-  template "/var/lib/postgresql/8.3/data/pg_hba.conf" do
+  template "/var/lib/postgresql/8.4/data/pg_hba.conf" do
     owner 'postgres'
     group 'root'
     mode 0600
@@ -59,7 +59,7 @@ if node[:instance_role] == 'db_master'
   execute "restart-postgres" do
     command "/etc/init.d/postgresql-#{postgres_version} restart"
     action :run
-    not_if "/etc/init.d/postgresql-8.3 status | grep -q start"
+    not_if "/etc/init.d/postgresql-8.4 status | grep -q start"
   end
 
   gem_package "pg" do
