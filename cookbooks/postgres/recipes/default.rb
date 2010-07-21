@@ -144,6 +144,8 @@ node[:applications].each do |app_name,data|
     action :create
     recursive true
   end
+  
+  log "a debug string" { level :debug }
 
   [ "", "keep." ].each do |prefix|
     template "/data/#{app_name}/shared/config/#{prefix}database.yml" do
