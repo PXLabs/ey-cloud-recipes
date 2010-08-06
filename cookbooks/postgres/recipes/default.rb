@@ -8,6 +8,11 @@ if node[:instance_role] == 'db_master'
   postgres_root    = '/var/lib/postgresql'
   postgres_version = '8.3'
 
+  package "dev-db/postgresql-server" do
+    version "8.3.8"
+    action :upgrade
+  end
+  
   directory '/db/postgresql' do
     owner 'postgres'
     group 'postgres'
