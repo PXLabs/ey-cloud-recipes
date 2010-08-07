@@ -2,15 +2,24 @@
 # Cookbook Name:: postgis
 # Recipe:: default
 #
-include_recipe "proj"
-include_recipe "geos"
-include_recipe "libxml2"
+has_postgis = ""
+execute "check for postgis" do
+  has_postgis = command "psql -c '\\l' | grep template_postgis"
+  action :run
+  user 'postgres' 
+end
 
-if ['solo', 'db_master'].include?(node[:instance_role])
+log "has_postgis:  #{has_postgis}"
+
+if ['solo', 'db_master'].include?(node[:instance_role]) && has_postgis == ""
 
   ey_cloud_report "postgis" do
     message "installing postgis 1.5.1"
   end
+  
+  include_recipe "proj"
+  include_recipe "geos"
+  include_recipe "libxml2"
 
   script "install_postgis" do 
     interpreter "bash"
@@ -24,7 +33,6 @@ if ['solo', 'db_master'].include?(node[:instance_role])
       make install
       ldconfig
     EOH
-    not_if "psql -U postgres -c '\\l' | grep -q 'template_postgis'"
   end
   
   script "init-postgis-template" do
@@ -35,8 +43,7 @@ if ['solo', 'db_master'].include?(node[:instance_role])
       psql -d template_postgis -f /usr/share/postgresql-8.3/contrib/postgis-1.5/postgis.sql
       psql -d template_postgis -f /usr/share/postgresql-8.3/contrib/postgis-1.5/spatial_ref_sys.sql
     EOH
-    user 'postgres'
-    not_if "psql -c '\\l' | grep -q 'template_postgis'"
+    user 'postgres' 
   end
   
   link "/usr/bin/shp2pgsql" do 
