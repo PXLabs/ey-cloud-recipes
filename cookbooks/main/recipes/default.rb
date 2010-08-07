@@ -7,6 +7,9 @@
 # uncomment if you want to run postgres recipe
 require_recipe 'postgres'
 
+# postgis recipe
+require_recipe 'postgis'
+
 # uncomment if you want to run couchdb recipe
 # require_recipe "couchdb"
 

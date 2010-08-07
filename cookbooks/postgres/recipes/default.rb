@@ -175,7 +175,10 @@ node[:applications].each do |app_name,data|
     only_if do File.exists?("/data/#{app_name}/current/config/database.yml") end
   end
   
-  link "/data/#{app_name}/shared/config/keep.database.yml" do
-    to "/data/#{app_name}/current/config/database.yml"
+  link "sym-link-database-yml" do
+    to "/data/#{app_name}/shared/config/keep.database.yml"
+    target_file "/data/#{app_name}/current/config/database.yml"
+    owner user[:username]
+    group user[:username]
   end
 end
