@@ -176,14 +176,14 @@ node[:applications].each do |app_name,data|
   script "copy-database-yml" do
     interperter "bash"
     cwd "/data/#{app_name}/current/config/"
-    code <<-EOH 
+    code <<-EOH
       cp -f /data/#{app_name}/shared/config/database.yml /data/#{app_name}/shared/config/keep.database.yml
       chown #{user[:username]}:#{user[:username]} /data/#{app_name}/shared/config/keep.database.yml
       chmod 744 /data/#{app_name}/shared/config/keep.database.yml
       ln -sf /data/#{app_name}/shared/config/keep.database.yml database.yml
       chown #{user[:username]}:#{user[:username]} database.yml
       chmod 744 database.yml
-    EOH 
+    EOH
   end
 
 end
