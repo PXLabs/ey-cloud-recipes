@@ -157,19 +157,25 @@ node[:applications].each do |app_name,data|
     action :create
     recursive true
   end
+    
+  template "/data/#{app_name}/shared/config/keep.database.yml" do
+    source "database.yml.erb"
+    owner user[:username]
+    group user[:username]
+    mode 0744
+    variables({
+      :username => user[:username],
+      :app_name => app_name,
+      :db_pass => user[:password]
+    })
+  end
+
+  link "/data/#{app_name}/current/config/database.yml" do
+    action :delete
+    only_if do File.exists?("/data/#{app_name}/current/config/database.yml") end
+  end
   
-  [ "", "keep." ].each do |prefix|
-    template "/data/#{app_name}/shared/config/#{prefix}database.yml" do
-      source "database.yml.erb"
-      owner user[:username]
-      group user[:username]
-      mode 0744
-      variables({
-        :username => user[:username],
-        :app_name => app_name,
-        :db_pass => user[:password]
-      })
-      not_if do File.exists?("/data/#{app_name}/shared/config/#{prefix}database.yml") end
-    end
+  link "/data/#{app_name}/shared/config/keep.database.yml" do
+    to "/data/#{app_name}/current/config/database.yml"
   end
 end
