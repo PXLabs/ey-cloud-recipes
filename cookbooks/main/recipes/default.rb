@@ -8,6 +8,9 @@
 # automatically installs postgis as well
 require_recipe 'postgres'
 
+# need to manually install rmagick do dependency on latest imagemagick
+require_recipe 'rmagick'
+
 # uncomment if you want to run couchdb recipe
 # require_recipe "couchdb"
 
@@ -15,7 +18,7 @@ require_recipe 'postgres'
 # require_recipe "mbari-ruby"
 
 # uncomment to turn on thinking sphinx/ultra sphinx. Remember to edit cookbooks/sphinx/recipes/default.rb first!
-#require_recipe "sphinx"
+require_recipe "sphinx"
 
 #uncomment to turn on memcached
 # require_recipe "memcached"

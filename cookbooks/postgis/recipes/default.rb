@@ -39,4 +39,8 @@ if ['solo', 'db_master'].include?(node[:instance_role])
     not_if "psql -c '\\l' | grep -q 'template_postgis'"
   end
   
+  link "/usr/bin/shp2pgsql" do 
+    to "/usr/lib/postgresql-8.3/bin/shp2pgsql"
+  end
+  
 end

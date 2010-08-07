@@ -135,7 +135,7 @@ node[:applications].each do |app_name,data|
     end
 
     execute "create-db-#{db_name}" do
-      command "psql -c '\\l' | grep -q '#{db_name}' || createdb #{db_name} -T template_postgis"
+      command "psql -c '\\l' | grep -q '#{db_name}' || createdb #{db_name} -T template_postgis -O #{user[:username]}"
       action :run
       user 'postgres'
     end
