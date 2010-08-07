@@ -120,6 +120,9 @@ if ['solo', 'db_master'].include?(node[:instance_role])
   end
 end
 
+# Setup postgis before creating the application database
+include_recipe "postgis"
+
 node[:applications].each do |app_name,data|
   user = node[:users].first
   db_name = "#{app_name}_#{node[:environment][:framework_env]}"
@@ -132,7 +135,7 @@ node[:applications].each do |app_name,data|
     end
 
     execute "create-db-#{db_name}" do
-      command "psql -c '\\l' | grep -q '#{db_name}' || createdb #{db_name}"
+      command "psql -c '\\l' | grep -q '#{db_name}' || createdb #{db_name} -T template_postgis"
       action :run
       user 'postgres'
     end
@@ -158,7 +161,7 @@ node[:applications].each do |app_name,data|
     recursive true
   end
     
-  template "/data/#{app_name}/shared/config/keep.database.yml" do
+  template "/data/#{app_name}/shared/config/database.yml" do
     source "database.yml.erb"
     owner user[:username]
     group user[:username]
@@ -169,20 +172,18 @@ node[:applications].each do |app_name,data|
       :db_pass => user[:password]
     })
   end
+  
+  script "copy-database-yml" do
+    interperter "bash"
+    cwd "/data/#{app_name}/current/config/"
+    code <<-EOH 
+      cp -f /data/#{app_name}/shared/config/database.yml /data/#{app_name}/shared/config/keep.database.yml
+      chown #{user[:username]}:#{user[:username]} /data/#{app_name}/shared/config/keep.database.yml
+      chmod 744 /data/#{app_name}/shared/config/keep.database.yml
+      ln -sf /data/#{app_name}/shared/config/keep.database.yml database.yml
+      chown #{user[:username]}:#{user[:username]} database.yml
+      chmod 744 database.yml
+    EOH 
+  end
 
-  file "/data/#{app_name}/current/config/database.yml" do
-    action :delete
-  end
-  
-  link "sym-link-database-yml" do
-    target_file "/data/#{app_name}/shared/config/keep.database.yml"
-    to "/data/#{app_name}/current/config/database.yml"
-  end
-  
-  file "/data/#{app_name}/current/config/database.yml" do
-    owner user[:username]
-    group user[:username]
-    mode '0755'
-    action :touch
-  end
 end
