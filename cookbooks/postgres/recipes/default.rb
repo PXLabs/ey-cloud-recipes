@@ -175,8 +175,8 @@ node[:applications].each do |app_name,data|
   end
   
   link "sym-link-database-yml" do
-    to "/data/#{app_name}/shared/config/keep.database.yml"
-    target_file "/data/#{app_name}/current/config/database.yml"
+    target_file "/data/#{app_name}/shared/config/keep.database.yml"
+    to "/data/#{app_name}/current/config/database.yml"
   end
   
   file "/data/#{app_name}/current/config/database.yml" do
