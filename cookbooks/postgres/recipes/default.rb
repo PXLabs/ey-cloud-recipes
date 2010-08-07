@@ -174,7 +174,7 @@ node[:applications].each do |app_name,data|
   end
   
   script "copy-database-yml" do
-    interperter "bash"
+    interpreter "bash"
     cwd "/data/#{app_name}/current/config/"
     code <<-EOH
       cp -f /data/#{app_name}/shared/config/database.yml /data/#{app_name}/shared/config/keep.database.yml
