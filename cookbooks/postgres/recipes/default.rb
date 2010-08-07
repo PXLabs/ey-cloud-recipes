@@ -170,9 +170,8 @@ node[:applications].each do |app_name,data|
     })
   end
 
-  link "/data/#{app_name}/current/config/database.yml" do
+  file "/data/#{app_name}/current/config/database.yml" do
     action :delete
-    only_if do File.exists?("/data/#{app_name}/current/config/database.yml") end
   end
   
   link "sym-link-database-yml" do
