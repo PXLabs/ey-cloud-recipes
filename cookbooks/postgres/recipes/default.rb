@@ -3,15 +3,14 @@ require 'pp'
 # Cookbook Name:: postgres
 # Recipe:: default
 #
-#
 
-ey_cloud_report "postgres" do
-  message "configuring postgres for #{node[:instance_role]}"
-end
-
-if node[:instance_role] == 'app_master'
+if ['solo', 'db_master'].include?(node[:instance_role])
   postgres_root    = '/var/lib/postgresql'
   postgres_version = '8.3'
+
+  ey_cloud_report "postgres" do
+    message "upgrading postgres to 8.3.8"
+  end
 
   package "dev-db/postgresql-server" do
     version "8.3.8"
@@ -115,13 +114,17 @@ if node[:instance_role] == 'app_master'
     command  "eybackup -e postgresql"
     not_if { node[:backup_window].to_s == '0' }
   end
+  
+  ey_cloud_report "postgres" do
+     message "setting up app database on postgres"
+  end
 end
 
 node[:applications].each do |app_name,data|
   user = node[:users].first
   db_name = "#{app_name}_#{node[:environment][:framework_env]}"
 
-  if node[:instance_role] == 'app_master'
+  if ['solo', 'db_master'].include?(node[:instance_role])
     execute "create-db-user-#{user[:username]}" do
       command "psql -c '\\du' | grep -q '#{user[:username]}' || psql -c \"create user #{user[:username]} with encrypted password \'#{user[:password]}\'\""
       action :run
