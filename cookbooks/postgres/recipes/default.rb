@@ -4,7 +4,7 @@ require 'pp'
 # Recipe:: default
 #
 #
-if node[:instance_role] == 'db_master'
+if node[:instance_role] == 'app_master'
   postgres_root    = '/var/lib/postgresql'
   postgres_version = '8.3'
 
@@ -116,7 +116,7 @@ node[:applications].each do |app_name,data|
   user = node[:users].first
   db_name = "#{app_name}_#{node[:environment][:framework_env]}"
 
-  if node[:instance_role] == 'db_master'
+  if node[:instance_role] == 'app_master'
     execute "create-db-user-#{user[:username]}" do
       command "psql -c '\\du' | grep -q '#{user[:username]}' || psql -c \"create user #{user[:username]} with encrypted password \'#{user[:password]}\'\""
       action :run
