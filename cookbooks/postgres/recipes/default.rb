@@ -4,6 +4,11 @@ require 'pp'
 # Recipe:: default
 #
 #
+
+ey_cloud_report "postgres" do
+  message "configuring postgres for #{node[:instance_role]}"
+end
+
 if node[:instance_role] == 'app_master'
   postgres_root    = '/var/lib/postgresql'
   postgres_version = '8.3'
