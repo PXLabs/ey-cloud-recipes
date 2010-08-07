@@ -178,7 +178,12 @@ node[:applications].each do |app_name,data|
   link "sym-link-database-yml" do
     to "/data/#{app_name}/shared/config/keep.database.yml"
     target_file "/data/#{app_name}/current/config/database.yml"
+  end
+  
+  file "/data/#{app_name}/current/config/database.yml" do
     owner user[:username]
     group user[:username]
+    mode '0755'
+    action :touch
   end
 end
