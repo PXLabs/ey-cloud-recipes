@@ -2,16 +2,19 @@
 # Cookbook Name:: postgis
 # Recipe:: default
 #
-has_postgis = ""
-execute "check for postgis" do
-  has_postgis = command "psql -c '\\l' | grep template_postgis"
-  action :run
-  user 'postgres' 
+install_postgis = false
+if ['solo', 'db_master'].include?(node[:instance_role])
+  begin
+    pg_tmplt = (`psql -c '\\l'`).match(/template_postgis/)
+    install_postgis = true if pg_tmplt.nil?
+  rescue Exception => e
+    install_postgis = true
+  end
 end
 
-Chef::Log.info "has_postgis:  #{has_postgis}"
+Chef::Log.info "install_postgis:  #{install_postgis}"
 
-if ['solo', 'db_master'].include?(node[:instance_role]) && has_postgis == ""
+if install_postgis == true
 
   ey_cloud_report "postgis" do
     message "installing postgis 1.5.1"

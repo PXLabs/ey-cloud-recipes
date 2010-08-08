@@ -18,6 +18,7 @@ require_recipe 'rmagick'
 # require_recipe "mbari-ruby"
 
 # uncomment to turn on thinking sphinx/ultra sphinx. Remember to edit cookbooks/sphinx/recipes/default.rb first!
+# can only run this after first deploy
 require_recipe "sphinx"
 
 #uncomment to turn on memcached
