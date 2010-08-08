@@ -140,6 +140,15 @@ node[:applications].each do |app_name,data|
       user 'postgres'
     end
 
+    execute "alter-spatial-table-perms" do
+      sql = "alter table spatial_ref_sys OWNER to #{user[:username]};
+             alter table geometry_columns OWNER to #{user[:username]};
+             alter table geography_columns OWNER to #{user[:username]};"
+      command "psql -d #{db_name} -c '#{sql}'"       
+      action :run
+      user 'postgres'
+    end
+    
     execute "grant-perms-on-#{db_name}-to-#{user[:username]}" do
       command "/usr/bin/psql -c 'grant all on database #{db_name} to #{user[:username]}'"
       action :run

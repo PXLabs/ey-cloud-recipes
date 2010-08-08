@@ -21,9 +21,9 @@ if ['solo', 'app_master','app'].include?(node[:instance_role])
       interpreter "bash"
       cwd "/tmp"
       code <<-EOH
-        wget ftp://ftp.imagemagick.org/pub/ImageMagick/ImageMagick.tar.gz
-        tar xvfz ImageMagick.tar.gz
-        cd ImageMagick
+        wget ftp://ftp.imagemagick.org/pub/ImageMagick/ImageMagick-6.6.3-3.tar.gz
+        tar xvfz ImageMagick-6.6.3-3.tar.gz
+        cd ImageMagick-6.6.3-3
         export LDFLAGS="-L/usr/local/lib -Wl,-rpath,/usr/local/lib"
         export LD_LIBRARY_PATH="/usr/local/lib"
         ./configure
@@ -33,7 +33,7 @@ if ['solo', 'app_master','app'].include?(node[:instance_role])
       EOH
     end
   else
-    log "has compatible imagemagick: #{imm_version[0]}"
+    Chef::Log.info "has compatible imagemagick: #{imm_version[0]}"
   end  
   
   ey_cloud_report "rmagick" do
@@ -46,6 +46,6 @@ if ['solo', 'app_master','app'].include?(node[:instance_role])
       action :install
     end    
   else
-    log "has compatible rmagick:  #{rm_version[0]}"  
+    Chef::Log.info "has compatible rmagick:  #{rm_version[0]}"  
   end
 end

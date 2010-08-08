@@ -9,7 +9,7 @@ execute "check for postgis" do
   user 'postgres' 
 end
 
-log "has_postgis:  #{has_postgis}"
+Chef::Log.info "has_postgis:  #{has_postgis}"
 
 if ['solo', 'db_master'].include?(node[:instance_role]) && has_postgis == ""
 
