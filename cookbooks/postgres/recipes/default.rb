@@ -118,10 +118,10 @@ if ['solo', 'db_master'].include?(node[:instance_role])
   ey_cloud_report "postgres" do
      message "setting up app database on postgres"
   end
+  
+  # Setup postgis before creating the application database
+  include_recipe "postgis"
 end
-
-# Setup postgis before creating the application database
-include_recipe "postgis"
 
 node[:applications].each do |app_name,data|
   user = node[:users].first
