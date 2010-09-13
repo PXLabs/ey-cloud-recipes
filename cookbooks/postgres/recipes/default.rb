@@ -3,19 +3,28 @@ require 'pp'
 # Cookbook Name:: postgres
 # Recipe:: default
 #
-
+configure_postgres = false
 if ['solo', 'db_master'].include?(node[:instance_role])
+  begin
+    pg_tmplt = (`psql -U postgres -c '\\l'`).match(/template_postgis/)
+    configure_postgres = true if pg_tmplt.nil?
+  rescue Exception => e
+    configure_postgres = true
+  end
+end
+Chef::Log.info "Database requires setup?:  #{configure_postgres}"
+if ['solo', 'db_master'].include?(node[:instance_role]) && configure_postgres
   postgres_root    = '/var/lib/postgresql'
   postgres_version = '8.3'
 
-  ey_cloud_report "postgres" do
-    message "upgrading postgres to 8.3.8"
-  end
-
-  package "dev-db/postgresql-server" do
-    version "8.3.8"
-    action :upgrade
-  end
+  # ey_cloud_report "postgres" do
+  #   message "upgrading postgres to 8.3.8"
+  # end
+  # 
+  # package "dev-db/postgresql-server" do
+  #   version "8.3.8"
+  #   action :upgrade
+  # end
   
   directory '/db/postgresql' do
     owner 'postgres'
@@ -123,63 +132,65 @@ if ['solo', 'db_master'].include?(node[:instance_role])
   include_recipe "postgis"
 end
 
-node[:applications].each do |app_name,data|
-  user = node[:users].first
-  db_name = "#{app_name}_#{node[:environment][:framework_env]}"
+if configure_postgres
+  node[:applications].each do |app_name,data|
+    user = node[:users].first
+    db_name = "#{app_name}_#{node[:environment][:framework_env]}"
 
-  if ['solo', 'db_master'].include?(node[:instance_role])
-    execute "create-db-user-#{user[:username]}" do
-      command "psql -c '\\du' | grep -q '#{user[:username]}' || psql -c \"create user #{user[:username]} with encrypted password \'#{user[:password]}\'\""
-      action :run
-      user 'postgres'
+    if ['solo', 'db_master'].include?(node[:instance_role])
+      execute "create-db-user-#{user[:username]}" do
+        command "psql -c '\\du' | grep -q '#{user[:username]}' || psql -c \"create user #{user[:username]} with encrypted password \'#{user[:password]}\'\""
+        action :run
+        user 'postgres'
+      end
+
+      execute "create-db-#{db_name}" do
+        command "psql -c '\\l' | grep -q '#{db_name}' || createdb #{db_name} -T template_postgis -O #{user[:username]}"
+        action :run
+        user 'postgres'
+      end
+
+      execute "alter-spatial-table-perms" do
+        sql = "alter table spatial_ref_sys OWNER to #{user[:username]};
+               alter table geometry_columns OWNER to #{user[:username]};
+               alter table geography_columns OWNER to #{user[:username]};"
+        command "psql -d #{db_name} -c '#{sql}'"       
+        action :run
+        user 'postgres'
+      end
+    
+      execute "grant-perms-on-#{db_name}-to-#{user[:username]}" do
+        command "/usr/bin/psql -c 'grant all on database #{db_name} to #{user[:username]}'"
+        action :run
+        user 'postgres'
+      end
+
+      execute "alter-public-schema-owner-on-#{db_name}-to-#{user[:username]}" do
+        command "/usr/bin/psql #{db_name} -c 'ALTER SCHEMA public OWNER TO #{user[:username]}'"
+        action :run
+        user 'postgres'
+      end
     end
 
-    execute "create-db-#{db_name}" do
-      command "psql -c '\\l' | grep -q '#{db_name}' || createdb #{db_name} -T template_postgis -O #{user[:username]}"
-      action :run
-      user 'postgres'
-    end
-
-    execute "alter-spatial-table-perms" do
-      sql = "alter table spatial_ref_sys OWNER to #{user[:username]};
-             alter table geometry_columns OWNER to #{user[:username]};
-             alter table geography_columns OWNER to #{user[:username]};"
-      command "psql -d #{db_name} -c '#{sql}'"       
-      action :run
-      user 'postgres'
+    directory "/data/#{app_name}/shared/config/" do
+      owner user[:username]
+      group user[:username]
+      mode  '0755'
+      action :create
+      recursive true
     end
     
-    execute "grant-perms-on-#{db_name}-to-#{user[:username]}" do
-      command "/usr/bin/psql -c 'grant all on database #{db_name} to #{user[:username]}'"
-      action :run
-      user 'postgres'
+    template "/data/#{app_name}/shared/config/database.yml" do
+      source "database.yml.erb"
+      owner user[:username]
+      group user[:username]
+      mode 0744
+      variables({
+        :username => user[:username],
+        :app_name => app_name,
+        :db_pass => user[:password]
+      })
     end
 
-    execute "alter-public-schema-owner-on-#{db_name}-to-#{user[:username]}" do
-      command "/usr/bin/psql #{db_name} -c 'ALTER SCHEMA public OWNER TO #{user[:username]}'"
-      action :run
-      user 'postgres'
-    end
   end
-
-  directory "/data/#{app_name}/shared/config/" do
-    owner user[:username]
-    group user[:username]
-    mode  '0755'
-    action :create
-    recursive true
-  end
-    
-  template "/data/#{app_name}/shared/config/database.yml" do
-    source "database.yml.erb"
-    owner user[:username]
-    group user[:username]
-    mode 0744
-    variables({
-      :username => user[:username],
-      :app_name => app_name,
-      :db_pass => user[:password]
-    })
-  end
-
-end
+end # ends if statement

@@ -21,9 +21,9 @@ if ['solo', 'app_master','app'].include?(node[:instance_role])
       interpreter "bash"
       cwd "/tmp"
       code <<-EOH
-        wget ftp://ftp.imagemagick.org/pub/ImageMagick/ImageMagick-6.6.3-3.tar.gz
-        tar xvfz ImageMagick-6.6.3-3.tar.gz
-        cd ImageMagick-6.6.3-3
+        wget ftp://ftp.imagemagick.org/pub/ImageMagick/ImageMagick-6.6.3-10.tar.gz
+        tar xvfz ImageMagick-6.6.3-10.tar.gz
+        cd ImageMagick-6.6.3-10
         export LDFLAGS="-L/usr/local/lib -Wl,-rpath,/usr/local/lib"
         export LD_LIBRARY_PATH="/usr/local/lib"
         ./configure

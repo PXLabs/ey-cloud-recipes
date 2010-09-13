@@ -5,7 +5,7 @@
 install_postgis = false
 if ['solo', 'db_master'].include?(node[:instance_role])
   begin
-    pg_tmplt = (`psql -c '\\l'`).match(/template_postgis/)
+    pg_tmplt = (`psql -U postgres -c '\\l'`).match(/template_postgis/)
     install_postgis = true if pg_tmplt.nil?
   rescue Exception => e
     install_postgis = true
