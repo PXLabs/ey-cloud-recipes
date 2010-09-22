@@ -21,6 +21,9 @@ require_recipe 'rmagick'
 # can only run this after first deploy
 require_recipe "sphinx"
 
+# uncomment if you want to run delayed_job recipe
+require_recipe "delayed_job"
+
 #uncomment to turn on memcached
 # require_recipe "memcached"
 
