@@ -3,8 +3,17 @@
 # Cookbook Name:: rmagick
 # Recipe:: default
 #
-imm_version = (`convert -version`).match(/(6\.[6-9]\.[0-9])/)
-rm_version = (`gem list --local | grep rmagick`).match(/2\.[1-9][3-9]\.[0-9]/)
+begin
+  imm_version = (`convert -version`).match(/(6\.[6-9]\.[0-9])/)
+rescue
+  imm_version = nil
+end
+
+begin
+  rm_version = (`gem list --local | grep rmagick`).match(/2\.[1-9][3-9]\.[0-9]/)
+rescue
+  rm_version = nil
+end
 
 if ['solo', 'app_master','app'].include?(node[:instance_role])
 
