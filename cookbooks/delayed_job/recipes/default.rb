@@ -20,6 +20,10 @@ if ["solo","app","app_master"].include?(node[:instance_role]) || (node[:instance
     # end
     worker_count = 3
     
+    ey_cloud_report "delayed_job" do
+      message "setting up #{worker_count} worker(s)"
+    end
+    
     worker_count.times do |count|
       template "/etc/monit.d/delayed_job#{count+1}.#{app_name}.monitrc" do
         source "dj.monitrc.erb"

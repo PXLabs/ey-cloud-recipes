@@ -13,7 +13,7 @@ if ['solo', 'db_master'].include?(node[:instance_role])
   end
 end
 Chef::Log.info "Database requires setup?:  #{configure_postgres}"
-if ['solo', 'db_master'].include?(node[:instance_role]) && configure_postgres
+if ['solo', 'db_master'].include?(node[:instance_role])
   postgres_root    = '/var/lib/postgresql'
   postgres_version = '8.3'
 
