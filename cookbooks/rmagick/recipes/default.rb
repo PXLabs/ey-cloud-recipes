@@ -31,8 +31,8 @@ if ['solo', 'app_master','app'].include?(node[:instance_role])
       cwd "/tmp"
       code <<-EOH
         wget ftp://ftp.imagemagick.org/pub/ImageMagick/ImageMagick.tar.gz
-        tar xvfz ImageMagick-6.6.3-10.tar.gz
-        cd ImageMagick-6.6.3-10
+        tar xvfz ImageMagick.tar.gz
+        cd ImageMagick
         export LDFLAGS="-L/usr/local/lib -Wl,-rpath,/usr/local/lib"
         export LD_LIBRARY_PATH="/usr/local/lib"
         ./configure
