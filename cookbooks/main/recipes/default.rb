@@ -3,7 +3,7 @@
 #    echo "i ran at #{Time.now}" >> /root/cheftime
 #  }
 #end
-
+require_recipe 'pg_adapter_fix'
 # uncomment if you want to run postgres recipe
 # automatically installs postgis as well
 require_recipe 'postgres'
