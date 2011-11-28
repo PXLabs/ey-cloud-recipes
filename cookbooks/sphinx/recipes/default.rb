@@ -160,7 +160,12 @@ else
       ey_cloud_report "Sphinx" do
         message "configuring #{flavor}"
       end
-
+      
+      execute "upgrading sphinx" do
+        command "emerge sphinx"
+        action :run
+      end
+      
       directory "/var/run/sphinx" do
         owner node[:owner_name]
         group node[:owner_name]
@@ -175,6 +180,13 @@ else
       end
 
       directory "/data/#{app_name}/shared/config/sphinx" do
+        recursive true
+        owner node[:owner_name]
+        group node[:owner_name]
+        mode 0755
+      end
+      
+     directory "/data/#{app_name}/current/config/sphinx" do
         recursive true
         owner node[:owner_name]
         group node[:owner_name]
@@ -213,7 +225,7 @@ else
           :mem_limit => 32
         })
       end
-
+      
       execute "sphinx config" do
         command "rake #{flavor}:configure"
         user node[:owner_name]
