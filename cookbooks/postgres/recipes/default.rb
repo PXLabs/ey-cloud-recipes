@@ -15,7 +15,8 @@ end
 Chef::Log.info "Database requires setup?:  #{configure_postgres}"
 if ['solo', 'db_master'].include?(node[:instance_role]) && configure_postgres
   postgres_root    = '/var/lib/postgresql'
-  postgres_version = '8.3'
+  # postgres_version = '8.3'
+  postgres_version = '9.3'
 
   # ey_cloud_report "postgres" do
   #   message "upgrading postgres to 8.3.8"
@@ -51,14 +52,14 @@ if ['solo', 'db_master'].include?(node[:instance_role]) && configure_postgres
     only_if "[ ! -d #{postgres_root}/#{postgres_version}/data ]"
   end
 
-  remote_file "/var/lib/postgresql/8.3/data/postgresql.conf" do
-    source "postgresql.conf"
-    owner "postgres"
-    group "root"
-    mode 0600
-  end
+  #remote_file "/var/lib/postgresql/8.3/data/postgresql.conf" do
+  #  source "postgresql.conf"
+  #  owner "postgres"
+  #  group "root"
+  #  mode 0600
+  #end
 
-  template "/var/lib/postgresql/8.3/data/pg_hba.conf" do
+  template "/var/lib/postgresql/9.3/data/pg_hba.conf" do
     owner 'postgres'
     group 'root'
     mode 0600

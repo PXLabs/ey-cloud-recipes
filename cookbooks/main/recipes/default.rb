@@ -3,10 +3,16 @@
 #    echo "i ran at #{Time.now}" >> /root/cheftime
 #  }
 #end
+require_recipe 'rails'
 require_recipe 'pg_adapter_fix'
 # uncomment if you want to run postgres recipe
 # automatically installs postgis as well
-require_recipe 'postgres'
+#require_recipe 'postgres'
+
+if ['solo', 'db_master', 'db_slave'].include?(node[:instance_role])
+  Chef::Log.info "Installing postgis on database" 
+  postgresql9_postgis2 "geodash"
+end
 
 # need to manually install rmagick do dependency on latest imagemagick
 require_recipe 'rmagick'
